@@ -1,93 +1,47 @@
-# PCAPdroid
+# VPN-Detect Collector (one app)
 
-PCAPdroid is a privacy-friendly open source app which lets you track, analyze and block the connections made by the other apps in your device. It also allows you to export a PCAP dump of the traffic, inspect HTTP, decrypt TLS traffic and much more!
+A research data-collection app for a Delhi Technological University study on VPN/tunnel
+detection. It captures **header-only** network metadata (packet sizes, timing, ports —
+**never message content or payload**) and streams it to a research collector, so we can
+study which kinds of VPN traffic a privacy-respecting detector can and cannot identify.
 
-PCAPdroid simulates a VPN in order to capture the network traffic without root. It does not use a remote VPN server, instead data is processed locally on the device.
+This is a **single app** — the capture engine is built in (forked from
+[PCAPdroid](https://github.com/emanuele-f/PCAPdroid), GPLv3). No companion app required.
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/emanuele-f/PCAPdroid/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="190" />
-<img src="https://raw.githubusercontent.com/emanuele-f/PCAPdroid/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="190" />
-</p>
+> **Privacy in one line:** it records the *size and timing* of packets, like noting "a
+> 1200-byte packet left at 14:03" — it never opens the packet, never reads your messages,
+> browsing, or any app content.
 
-Features:
+## Install (volunteers)
 
-- Log and examine the connections made by user and system apps
-- Extract the SNI, DNS query, HTTP URL and the remote IP address
-- Inspect HTTP requests and replies thanks to the built-in decoders
-- Inspect the full connections payload as hexdump/text
-- [Decrypt the HTTPS/TLS traffic](https://emanuele-f.github.io/PCAPdroid/tls_decryption) and export the SSLKEYLOGFILE
-- Dump the traffic to a PCAP file, download it from a browser, or stream it to a remote receiver for real-time analysis (e.g. Wireshark)
-- Create rules to filter out the good traffic and easily spot anomalies
-- Identify the country and ASN of remote server via offline DB lookups
-- On rooted devices, capture the traffic while other VPN apps are running
+1. **Download the APK:** http://4.247.129.247:8080/app
+   (before installing, enable "Install unknown apps" for your browser.)
+2. Open the app, tap **Start**, and grant the one-time VPN permission it requests
+   (this is how Android lets it capture — it is **not** a real VPN and uses no remote server).
+3. Use your phone normally. That's it — it streams header-only metadata to the collector.
 
-Paid features:
+- **Header-only by default** (payload capture is hard-disabled in this fork).
+- **Your own VPN is untouched.** If you turn on WireGuard/Nord/any VPN, this app stops
+  automatically (Android allows only one VPN at a time) and resumes when it's off.
+- **Stop anytime** from the app's stop button or the notification.
 
-- [Firewall](https://emanuele-f.github.io/PCAPdroid/paid_features#51-firewall): create rules to block individual apps, domains and IP addresses
-- [Malware detection](https://emanuele-f.github.io/PCAPdroid/paid_features#52-malware-detection): detect malicious connections by using third-party blacklists
-- [PCAPng format](https://emanuele-f.github.io/PCAPdroid/paid_features#53-pcapng-format): makes it easier to export and analyze decrypted traffic
+## What changed from PCAPdroid
 
-If you plan to use PCAPdroid to perform packet analysis, please check out <a href='https://emanuele-f.github.io/PCAPdroid/quick_start#14-packet-analysis'>the specific section</a> of the manual.
+This fork adds a small `HttpDumper` that streams the live header-only PCAP to the campaign
+collector over one chunked HTTP POST (on a protected socket, so the upload itself is never
+captured), and preconfigures the app for one-tap collection (collector address, header-only
+payload mode, exporter dump mode). See `app/src/main/java/com/emanuelef/remote_capture/pcap_dump/HttpDumper.java`.
 
-<a href="https://f-droid.org/packages/com.emanuelef.remote_capture">
-    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">
-</a> <a href='https://play.google.com/store/apps/details?id=com.emanuelef.remote_capture'><img height="80" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+The collector endpoint is token-protected and size-capped and stores only header-only
+`.pcap` files. No payload is ever transmitted.
 
-You can test the latest features before the official release by adding the [Beta repository](https://pcapdroid.org/fdroid/repo/) to the F-Droid app.
+## License & credit
 
-## User Guide
+PCAPdroid is © Emanuele Faranda, licensed **GPLv3** (see `COPYING`). This research fork
+keeps the same license. All original PCAPdroid functionality and credit remain with the
+upstream project: https://github.com/emanuele-f/PCAPdroid
 
-Check out the [quick start instructions](https://emanuele-f.github.io/PCAPdroid/quick_start) or the full [User Guide](https://emanuele-f.github.io/PCAPdroid).
+---
 
-## Sponsors
-
-The PCAPdroid project is sponsored by [AVEQ GmbH](https://aveq.info).
-
-If you want to sponsor this project [drop me an email](mailto:black.silver@hotmail.it?subject=PCAPdroid%20sponsorship).
-
-## Community
-
-You can help the PCAPdroid project in many ways:
-
-- [Make a donation](https://emanuele-f.github.io/PCAPdroid/donate)
-- Translate the app on [Weblate](https://hosted.weblate.org/engage/pcapdroid/)
-<a href="https://hosted.weblate.org/engage/pcapdroid/">
-  <img src="https://hosted.weblate.org/widgets/pcapdroid/-/app/multi-auto.svg" alt="Translation status" />
-</a>
-
-- [Discuss](https://github.com/emanuele-f/PCAPdroid/discussions) new features
-- Improve the app theme and layout
-- Star the project on Github and on [Google Play](https://play.google.com/store/apps/details?id=com.emanuelef.remote_capture)
-- Of course provide code pull requests!
-
-Join the international PCAPdroid community [on Telegram](https://t.me/PCAPdroid) or [on Matrix](https://matrix.to/#/#pcapdroid:matrix.org).
-
-## Integrating into your APP
-
-Some features of PCAPdroid can be integrated into a third-party app to provide packet capture capabilities.
-
-- For rooted devices, the [pcapd daemon](https://github.com/emanuele-f/PCAPdroid/tree/master/app/src/main/jni/pcapd) can be directly integrated into your APK to capture network packets.
-- For all the devices, PCAPdroid [exposes an API](https://github.com/emanuele-f/PCAPdroid/blob/master/docs/app_api.md) to control the packet capture and send the captured packets via UDP to your app. This requires to install PCAPdroid along with your app.
-
-## Open Source
-
-PCAPdroid is powered by open source technologies.
-
-- [nDPI](https://github.com/ntop/nDPI): deep packet inspection library, provides the connections metadata
-- [mitmproxy](https://github.com/mitmproxy/mitmproxy): a local proxy for the TLS decryption
-- [zdtun](https://github.com/emanuele-f/zdtun): minimal TCP/IP stack for the non-root capture
-
-For the complete list of third party libraries check out the "About" page in the app.
-
-## Building
-
-1. On Windows, install [gitforwindows](https://gitforwindows.org)
-2. Clone this repo
-3. Inside the repo dir, run `git submodule update --init`. The `submodules` directory should get populated.
-4. Open the project in Android Studio, install the appropriate SDK and the NDK
-5. Build the app
-
-*Note*: If you get "No valid CMake executable was found", be sure to install the CMake version used by PCAPdroid (currently [3.22.1](https://github.com/emanuele-f/PCAPdroid/blob/master/app/build.gradle)) from the SDK manager
-
+*Department of Computer Science and Engineering, Delhi Technological University.
+Header-only, consent-based, opt-out anytime.*

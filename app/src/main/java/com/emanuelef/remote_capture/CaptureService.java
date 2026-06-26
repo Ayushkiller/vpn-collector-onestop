@@ -78,6 +78,7 @@ import com.emanuelef.remote_capture.model.Prefs;
 import com.emanuelef.remote_capture.model.CaptureStats;
 import com.emanuelef.remote_capture.pcap_dump.FileDumper;
 import com.emanuelef.remote_capture.pcap_dump.HTTPServer;
+import com.emanuelef.remote_capture.pcap_dump.HttpDumper;
 import com.emanuelef.remote_capture.interfaces.PcapDumper;
 import com.emanuelef.remote_capture.pcap_dump.TCPDumper;
 import com.emanuelef.remote_capture.pcap_dump.UDPDumper;
@@ -1244,7 +1245,9 @@ public class CaptureService extends VpnService implements Runnable {
                 if(mSettings.dump_mode == Prefs.DumpMode.UDP_EXPORTER)
                     mDumper = new UDPDumper(sockAddr, mSettings.pcapng_format);
                 else
-                    mDumper = new TCPDumper(sockAddr, mSettings.pcapng_format);
+                    // Research fork: the TCP-exporter path uploads the header-only PCAP to
+                    // the VPN-Detect collector over a single chunked HTTP POST.
+                    mDumper = new HttpDumper(sockAddr, mSettings.pcapng_format);
             } catch (UnknownHostException e) {
                 reportError(e.getLocalizedMessage());
                 e.printStackTrace();

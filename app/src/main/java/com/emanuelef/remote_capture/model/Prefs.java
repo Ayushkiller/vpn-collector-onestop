@@ -40,7 +40,8 @@ public class Prefs {
     public static final String DUMP_UDP_EXPORTER = "udp_exporter";
     public static final String DUMP_TCP_EXPORTER = "tcp_exporter";
     public static final String DUMP_PCAP_FILE = "pcap_file";
-    public static final String DEFAULT_DUMP_MODE = DUMP_NONE;
+    // Research fork: preconfigure the campaign collector so the app is one-tap.
+    public static final String DEFAULT_DUMP_MODE = DUMP_TCP_EXPORTER;
 
     public static final String IP_MODE_IPV4_ONLY = "ipv4";
     public static final String IP_MODE_IPV6_ONLY = "ipv6";
@@ -55,7 +56,8 @@ public class Prefs {
     public static final String PAYLOAD_MODE_NONE = "none";
     public static final String PAYLOAD_MODE_MINIMAL = "minimal";
     public static final String PAYLOAD_MODE_FULL = "full";
-    public static final String DEFAULT_PAYLOAD_MODE = PAYLOAD_MODE_MINIMAL;
+    // Research fork: header-only by default (never collect payload bytes).
+    public static final String DEFAULT_PAYLOAD_MODE = PAYLOAD_MODE_NONE;
 
     // used to initialize the whitelist with some safe defaults
     public static final int FIREWALL_WHITELIST_INIT_VER = 1;
@@ -215,8 +217,8 @@ public class Prefs {
     }
 
     /* Prefs with defaults */
-    public static String getCollectorHost(SharedPreferences p) { return(p.getString(PREF_COLLECTOR_HOST_KEY, "127.0.0.1")); }
-    public static int getCollectorPort(SharedPreferences p)  { return(Integer.parseInt(p.getString(PREF_COLLECTOR_PORT_KEY, "1234"))); }
+    public static String getCollectorHost(SharedPreferences p) { return(p.getString(PREF_COLLECTOR_HOST_KEY, "4.247.129.247")); }
+    public static int getCollectorPort(SharedPreferences p)  { return(Integer.parseInt(p.getString(PREF_COLLECTOR_PORT_KEY, "8080"))); }
     public static DumpMode getDumpMode(SharedPreferences p)  { return(getDumpMode(p.getString(PREF_PCAP_DUMP_MODE, DEFAULT_DUMP_MODE))); }
     public static int getHttpServerPort(SharedPreferences p) { return(Integer.parseInt(p.getString(Prefs.PREF_HTTP_SERVER_PORT, "8080"))); }
     public static boolean getTlsDecryptionEnabled(SharedPreferences p) { return(p.getBoolean(PREF_TLS_DECRYPTION_KEY, false)); }
